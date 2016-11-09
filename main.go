@@ -147,6 +147,20 @@ func handleAddKey(w http.ResponseWriter, r *http.Request) {
   http.Redirect(w, r, "/", http.StatusFound)
 }
 
+func handleIncrementHOTP(w http.ResponseWriter, r *http.Request) {
+  err := r.ParseForm()
+  if err != nil {
+      // Handle error here via logging and then return
+  }
+  service := r.PostFormValue("Service")
+  for i := 0; i < len(TabOtpInfo); i++ {
+    if service == TabOtpInfo[i].Service {
+      TabOtpInfo[i].Counter += 1
+    }
+  }
+  setOtpInfoJSONFromFile(FileBDD, TabOtpInfo)
+}
+
 func main() {
   var err error
 
@@ -155,6 +169,7 @@ func main() {
   http.HandleFunc("/add", handleAdd)
   http.HandleFunc("/addKey", handleAddKey)
   http.HandleFunc("/getOtp", handleGetOtp)
+  http.HandleFunc("/incrementHOTP", handleIncrementHOTP)
   log.Println("Ready to listen and serve.")
   err = http.ListenAndServe(":8080", nil)
   if err != nil {

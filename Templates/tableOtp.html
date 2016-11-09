@@ -21,10 +21,21 @@
         </div></td>
         {{end}}
         {{if eq .Protocol "HOTP"}}
-        {{.Counter}}
+        {{.Counter}} <a onclick="incrementHOTP({{.Service}})"><i class="tiny material-icons">replay</i></a>
         {{end}}
     </tr>
     {{end}}
   </tbody>
 </table>
+
+<script>
+function incrementHOTP(service) {
+  $.ajax({
+    type: 'POST',
+    url: '/incrementHOTP',
+    // post payload:
+    data: { Service: service },
+  })
+}
+</script>
 {{end}}

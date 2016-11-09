@@ -1,0 +1,59 @@
+{{define "content"}}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Add Key</title>
+    <!--Import Google Icon Font-->
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/css/materialize.min.css">
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  </head>
+
+  <body>
+    <!--Import jQuery before materialize.js-->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>
+
+    <script type="text/javascript" src="/Scripts/zepto.min.js"></script>
+
+
+    {{template "header" "del"}}
+
+    <div class="row">
+      <form class="col s12" action="/checkDel" method="POST">
+        <div class="row">
+          <div class="input-field col s12">
+            <input name="service" type="text" id="autocomplete-input" value="{{if .Err.Service}}{{.Err.Service}}}}{{end}}" class="autocomplete validate {{if .Err.Service}}invalid{{end}}">
+            <label data-error="Unknown Service" for="autocomplete-input">Service to Delete</label>
+          </div>
+        </div>
+
+        <button class="btn waves-effect waves-light red" type="submit" name="action">Delete
+          <i class="material-icons right">send</i>
+        </button>
+      </form>
+    </div>
+
+    <script>
+    $(document).ready(function() {
+      $('input.autocomplete').autocomplete({
+        /*data: {
+          "Apple": null,
+          "Microsoft": null,
+          "Google": 'http://placehold.it/250x250'
+        }*/
+        data: {
+          {{range .ListOfService}}
+          "{{.}}":  null,
+          {{end}}
+        }
+      });
+    });
+    </script>
+
+  </body>
+</html>
+{{end}}

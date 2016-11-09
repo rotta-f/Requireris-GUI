@@ -75,6 +75,24 @@ func generateOtp(otpInfo []otpInfoJSON) []otpInfoWeb {
   return oIfo
 }
 
+func isServiceAvailable(service string) bool {
+  for i := 0; i < len(TabOtpInfo); i++ {
+    if service == TabOtpInfo[i].Service {
+      return false
+    }
+  }
+  return true
+}
+
+func getServiceIndex(service string) int {
+  for i := 0; i < len(TabOtpInfo); i++ {
+    if service == TabOtpInfo[i].Service {
+      return i
+    }
+  }
+  return -1
+}
+
 func handleIndex(w http.ResponseWriter, r *http.Request) {
   t, err := template.ParseFiles("Templates/utils.html", "Templates/index.html")
   if err != nil {
@@ -100,53 +118,6 @@ func handleGetOtp(w http.ResponseWriter, r *http.Request) {
   }
 }
 
-func handleAdd(w http.ResponseWriter, r *http.Request) {
-  t, err := template.ParseFiles("Templates/utils.html", "Templates/add.html")
-  err = t.ExecuteTemplate(w, "content", &otpInfoJSON{Protocol : "", Service : "", Key : ""})
-  if err != nil {
-    http.Error(w, err.Error(), http.StatusInternalServerError)
-  }
-}
-
-func isServiceAvailable(service string) bool {
-  for i := 0; i < len(TabOtpInfo); i++ {
-    if service == TabOtpInfo[i].Service {
-      return false
-    }
-  }
-  return true
-}
-
-func handleAddKey(w http.ResponseWriter, r *http.Request) {
-  err := r.ParseForm()
-  if err != nil {
-      // Handle error here via logging and then return
-  }
-  protocolsAvailable := map[string]bool{"HOTP" : true, "TOTP" : true}
-  protocol := r.PostFormValue("protocol")
-  service := r.PostFormValue("service")
-  key := r.PostFormValue("key")
-  goodProtocol := protocolsAvailable[protocol]
-  goodService := isServiceAvailable(service)
-  if !goodProtocol || !goodService {
-    t, err := template.ParseFiles("Templates/utils.html", "Templates/add.html")
-    if goodProtocol {
-      protocol = ""
-    }
-    if goodService {
-      service = ""
-    }
-    err = t.ExecuteTemplate(w, "content", &otpInfoJSON{Protocol : protocol, Service : service, Key : key})
-    if err != nil {
-      http.Error(w, err.Error(), http.StatusInternalServerError)
-    }
-    return
-  }
-  TabOtpInfo = append(TabOtpInfo, otpInfoJSON{Protocol : protocol, Service : service, Key : key, Counter : 0})
-  setOtpInfoJSONFromFile(FileBDD, TabOtpInfo)
-  http.Redirect(w, r, "/", http.StatusFound)
-}
-
 func handleIncrementHOTP(w http.ResponseWriter, r *http.Request) {
   err := r.ParseForm()
   if err != nil {
@@ -170,6 +141,8 @@ func main() {
   http.HandleFunc("/addKey", handleAddKey)
   http.HandleFunc("/getOtp", handleGetOtp)
   http.HandleFunc("/incrementHOTP", handleIncrementHOTP)
+  http.HandleFunc("/del", handleDelKey)
+  http.HandleFunc("/checkDel", handleCheckDelKey)
   log.Println("Ready to listen and serve.")
   err = http.ListenAndServe(":8080", nil)
   if err != nil {

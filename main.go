@@ -7,21 +7,26 @@ import (
   "time"
   "io/ioutil"
   "encoding/json"
+
+  "github.com/rotta-f/Requireris"
 )
 
 type otpInfoJSON struct {
   Protocol string
-  Name string
+  Service string
   Key string
-  Counter int
+  Counter uint64
 }
 
 type otpInfoWeb struct {
   Protocol string
-  Name string
+  Service string
   Digits string
-  Counter int
+  Counter uint64
 }
+
+var TabOtpInfo []otpInfoJSON
+const FileBDD string = "info.json"
 
 func getOtpInfoJSONFromFile(fileName string) []otpInfoJSON {
   content, err := ioutil.ReadFile(fileName)
@@ -37,38 +42,93 @@ func getOtpInfoJSONFromFile(fileName string) []otpInfoJSON {
   return otpInfo
 }
 
+func setOtpInfoJSONFromFile(fileName string, otpInfo []otpInfoJSON) {
+  content, err := json.Marshal(otpInfo)
+  if err != nil {
+    log.Print(err)
+    return
+  }
+  err = ioutil.WriteFile(fileName, content, 0644)
+  if err != nil {
+    log.Print(err)
+  }
+}
+
 func generateOtp(otpInfo []otpInfoJSON) []otpInfoWeb {
   oIfo := make([]otpInfoWeb, len(otpInfo))
   for i := 0; i < len(otpInfo) ; i++ {
     oIfo[i].Protocol = otpInfo[i].Protocol
-    oIfo[i].Name = otpInfo[i].Name
-    oIfo[i].Digits = "035294"
+    oIfo[i].Service = otpInfo[i].Service
     oIfo[i].Counter = otpInfo[i].Counter
-    if otpInfo[i].Protocol == "TOTP" {
+    oIfo[i].Digits = "Not Defined"
+    otp := Requireris.Init(otpInfo[i].Key)
+    switch otpInfo[i].Protocol {
+    case "TOTP":
       secs := time.Now().Unix()
-      oIfo[i].Counter = int((30 - (secs % 30)) * 100 / 30)
+      oIfo[i].Digits = otp.TOPT()
+      oIfo[i].Counter = uint64(30 - (secs % 30)) * 100 / 30
+    case "HOTP":
+      oIfo[i].Digits = otp.HOTP(otpInfo[i].Counter)
+      oIfo[i].Counter = otpInfo[i].Counter
     }
   }
   return oIfo
 }
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
-  t, err := template.ParseFiles("Templates/tableOtp.html", "Templates/index.html")
+  t, err := template.ParseFiles("Templates/utils.html", "Templates/tableOtp.html", "Templates/index.html")
   if err != nil {
     http.Error(w, err.Error(), http.StatusInternalServerError)
     return
   }
-  oIfo := generateOtp(getOtpInfoJSONFromFile("info.json"))
+  oIfo := generateOtp(TabOtpInfo)
   err = t.ExecuteTemplate(w, "content", oIfo)
   if err != nil {
     http.Error(w, err.Error(), http.StatusInternalServerError)
   }
 }
 
+func handleAdd(w http.ResponseWriter, r *http.Request) {
+  t, err := template.ParseFiles("Templates/utils.html", "Templates/add.html")
+  err = t.ExecuteTemplate(w, "content", nil)
+  if err != nil {
+    http.Error(w, err.Error(), http.StatusInternalServerError)
+  }
+}
+
+func isServiceAvailable(service string) bool {
+  for i := 0; i < len(TabOtpInfo); i++ {
+    if service == TabOtpInfo[i].Service {
+      return false
+    }
+  }
+  return true
+}
+
+func handleAddKey(w http.ResponseWriter, r *http.Request) {
+  err := r.ParseForm()
+  if err != nil {
+      // Handle error here via logging and then return
+  }
+  protocolsAvailable := map[string]bool{"HOTP" : true, "TOTP" : true}
+  protocol := r.PostFormValue("protocol")
+  service := r.PostFormValue("service")
+  key := r.PostFormValue("key")
+  if !protocolsAvailable[protocol] || !isServiceAvailable(service) {
+    http.Redirect(w, r, "/", http.StatusFound)
+  }
+  TabOtpInfo = append(TabOtpInfo, otpInfoJSON{Protocol : protocol, Service : service, Key : key, Counter : 0})
+  setOtpInfoJSONFromFile(FileBDD, TabOtpInfo)
+  http.Redirect(w, r, "/", http.StatusFound)
+}
+
 func main() {
   var err error
 
+  TabOtpInfo = getOtpInfoJSONFromFile(FileBDD)
   http.HandleFunc("/", handleIndex)
+  http.HandleFunc("/add", handleAdd)
+  http.HandleFunc("/addKey", handleAddKey)
   log.Println("Ready to listen and serve.")
   err = http.ListenAndServe(":8080", nil)
   if err != nil {

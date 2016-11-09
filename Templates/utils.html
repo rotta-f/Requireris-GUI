@@ -1,0 +1,11 @@
+{{define "header"}}
+<nav>
+  <div class="nav-wrapper">
+    <a href="#!" class="brand-logo center">Logo</a>
+    <ul class="left hide-on-med-and-down">
+      <li {{if eq . "index"}}class="active"{{end}}><a href="/index">Home</a></li>
+      <li {{if eq . "add"}}class="active"{{end}}><a href="/add">Add Key</a></li>
+    </ul>
+  </div>
+</nav>
+{{end}}

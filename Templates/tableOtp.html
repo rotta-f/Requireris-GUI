@@ -13,7 +13,7 @@
       {{range .}}
       <tr>
         <td>{{.Protocol}}</td>
-        <td>{{.Name}}</td>
+        <td>{{.Service}}</td>
         <td>{{.Digits}}</td>
         <td>
           {{if eq .Protocol "TOTP"}}
@@ -22,7 +22,7 @@
           </div></td>
           {{end}}
           {{if eq .Protocol "HOTP"}}
-          4
+          {{.Counter}}
           {{end}}
       </tr>
       {{end}}

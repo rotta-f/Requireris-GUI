@@ -17,11 +17,32 @@
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>
 
-    {{template "header" "index"}}
+    <script type="text/javascript" src="/Scripts/zepto.min.js"></script>
 
-    {{template "tableOtp" .}}
+    {{template "header" "index"}}
+    <div id="containerOtp" class="container">
+    </div>
 
      <a href="/add" class="btn-floating btn-large waves-effect waves-light red"><i class="material-icons">add</i></a>
+
+     <script>
+     function refreshContainerOtp() {
+       $.ajax({
+         type: 'GET',
+         url: '/getOtp',
+
+         // type of data we are expecting in return:
+         dataType: 'html',
+         timeout: 300,
+         context: $('body'),
+         success: function(data){
+           $('#containerOtp').html(data)
+         }
+        })
+      }
+      refreshContainerOtp();
+      setInterval(refreshContainerOtp, 2000);
+     </script>
 
   </body>
 </html>

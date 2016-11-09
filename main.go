@@ -76,13 +76,25 @@ func generateOtp(otpInfo []otpInfoJSON) []otpInfoWeb {
 }
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
-  t, err := template.ParseFiles("Templates/utils.html", "Templates/tableOtp.html", "Templates/index.html")
+  t, err := template.ParseFiles("Templates/utils.html", "Templates/index.html")
+  if err != nil {
+    http.Error(w, err.Error(), http.StatusInternalServerError)
+    return
+  }
+  err = t.ExecuteTemplate(w, "content", nil)
+  if err != nil {
+    http.Error(w, err.Error(), http.StatusInternalServerError)
+  }
+}
+
+func handleGetOtp(w http.ResponseWriter, r *http.Request) {
+  t, err := template.ParseFiles("Templates/tableOtp.html")
   if err != nil {
     http.Error(w, err.Error(), http.StatusInternalServerError)
     return
   }
   oIfo := generateOtp(TabOtpInfo)
-  err = t.ExecuteTemplate(w, "content", oIfo)
+  err = t.ExecuteTemplate(w, "tableOtp", oIfo)
   if err != nil {
     http.Error(w, err.Error(), http.StatusInternalServerError)
   }
@@ -90,7 +102,7 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 
 func handleAdd(w http.ResponseWriter, r *http.Request) {
   t, err := template.ParseFiles("Templates/utils.html", "Templates/add.html")
-  err = t.ExecuteTemplate(w, "content", nil)
+  err = t.ExecuteTemplate(w, "content", &otpInfoJSON{Protocol : "", Service : "", Key : ""})
   if err != nil {
     http.Error(w, err.Error(), http.StatusInternalServerError)
   }
@@ -114,8 +126,21 @@ func handleAddKey(w http.ResponseWriter, r *http.Request) {
   protocol := r.PostFormValue("protocol")
   service := r.PostFormValue("service")
   key := r.PostFormValue("key")
-  if !protocolsAvailable[protocol] || !isServiceAvailable(service) {
-    http.Redirect(w, r, "/", http.StatusFound)
+  goodProtocol := protocolsAvailable[protocol]
+  goodService := isServiceAvailable(service)
+  if !goodProtocol || !goodService {
+    t, err := template.ParseFiles("Templates/utils.html", "Templates/add.html")
+    if goodProtocol {
+      protocol = ""
+    }
+    if goodService {
+      service = ""
+    }
+    err = t.ExecuteTemplate(w, "content", &otpInfoJSON{Protocol : protocol, Service : service, Key : key})
+    if err != nil {
+      http.Error(w, err.Error(), http.StatusInternalServerError)
+    }
+    return
   }
   TabOtpInfo = append(TabOtpInfo, otpInfoJSON{Protocol : protocol, Service : service, Key : key, Counter : 0})
   setOtpInfoJSONFromFile(FileBDD, TabOtpInfo)
@@ -129,6 +154,7 @@ func main() {
   http.HandleFunc("/", handleIndex)
   http.HandleFunc("/add", handleAdd)
   http.HandleFunc("/addKey", handleAddKey)
+  http.HandleFunc("/getOtp", handleGetOtp)
   log.Println("Ready to listen and serve.")
   err = http.ListenAndServe(":8080", nil)
   if err != nil {

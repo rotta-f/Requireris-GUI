@@ -1,1 +1,1 @@
-[{"Protocol":"TOTP","Service":"Testo","Key":"base32secret3232","Counter":0}]
+[{"Protocol":"HOTP","Service":"testo","Key":"qsdf","Counter":0},{"Protocol":"TOTP","Service":"Testo","Key":"qsdf","Counter":0}]

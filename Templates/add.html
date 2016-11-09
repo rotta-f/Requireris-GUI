@@ -31,13 +31,13 @@
         </div>
         <div class="row">
           <div class="input-field col s12">
-            <input name="service" id="service" type="text" class="validate" required>
-            <label for="service">Service</label>
+            <input name="service" id="service" type="text" {{if .Service}}value="{{.Service}}"{{end}} class="validate {{if .Service}}invalid{{end}}" required>
+            <label data-error="Already used" for="service">Service</label>
           </div>
         </div>
         <div class="row">
           <div class="input-field col s12">
-            <input name="key" id="key" type="text" class="validate" required>
+            <input name="key" id="key" type="text" {{if .Key}}value="{{.Key}}"{{end}} class="validate" required>
             <label for="key">Secret Key</label>
           </div>
         </div>

@@ -9,42 +9,42 @@ import (
   "encoding/json"
 )
 
-type odpInfoJSON struct {
+type otpInfoJSON struct {
   Protocol string
   Name string
   Key string
   Counter int
 }
 
-type odpInfoWeb struct {
+type otpInfoWeb struct {
   Protocol string
   Name string
   Digits string
   Counter int
 }
 
-func getOdpInfoJSONFromFile(fileName string) []odpInfoJSON {
+func getOtpInfoJSONFromFile(fileName string) []otpInfoJSON {
   content, err := ioutil.ReadFile(fileName)
   if err != nil {
     log.Print(err)
     content = []byte("[]")
   }
-  var odpInfo []odpInfoJSON
-  err = json.Unmarshal(content, &odpInfo)
+  var otpInfo []otpInfoJSON
+  err = json.Unmarshal(content, &otpInfo)
   if err != nil {
     log.Print(err)
   }
-  return odpInfo
+  return otpInfo
 }
 
-func generateOtp(odpInfo []odpInfoJSON) []odpInfoWeb {
-  oIfo := make([]odpInfoWeb, len(odpInfo))
-  for i := 0; i < len(odpInfo) ; i++ {
-    oIfo[i].Protocol = odpInfo[i].Protocol
-    oIfo[i].Name = odpInfo[i].Name
+func generateOtp(otpInfo []otpInfoJSON) []otpInfoWeb {
+  oIfo := make([]otpInfoWeb, len(otpInfo))
+  for i := 0; i < len(otpInfo) ; i++ {
+    oIfo[i].Protocol = otpInfo[i].Protocol
+    oIfo[i].Name = otpInfo[i].Name
     oIfo[i].Digits = "035294"
-    oIfo[i].Counter = odpInfo[i].Counter
-    if odpInfo[i].Protocol == "TOTP" {
+    oIfo[i].Counter = otpInfo[i].Counter
+    if otpInfo[i].Protocol == "TOTP" {
       secs := time.Now().Unix()
       oIfo[i].Counter = int((30 - (secs % 30)) * 100 / 30)
     }
@@ -53,12 +53,12 @@ func generateOtp(odpInfo []odpInfoJSON) []odpInfoWeb {
 }
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
-  t, err := template.ParseFiles("Templates/tableOdp.html", "Templates/index.html")
+  t, err := template.ParseFiles("Templates/tableOtp.html", "Templates/index.html")
   if err != nil {
     http.Error(w, err.Error(), http.StatusInternalServerError)
     return
   }
-  oIfo := generateOtp(getOdpInfoJSONFromFile("info.json"))
+  oIfo := generateOtp(getOtpInfoJSONFromFile("info.json"))
   err = t.ExecuteTemplate(w, "content", oIfo)
   if err != nil {
     http.Error(w, err.Error(), http.StatusInternalServerError)

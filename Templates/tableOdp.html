@@ -1,0 +1,32 @@
+{{define "tableOdp"}}
+<div class="container">
+  <table class="highlight">
+    <thead>
+      <tr>
+          <th data-field="protocol">Protocol</th>
+          <th data-field="service">Service Name</th>
+          <th data-field="digits">Digits Value</th>
+          <th data-field="counter"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .}}
+      <tr>
+        <td>{{.Protocol}}</td>
+        <td>{{.Name}}</td>
+        <td>{{.Digits}}</td>
+        <td>
+          {{if eq .Protocol "TOTP"}}
+          <div class="progress">
+            <div class="determinate" style="width: {{.Counter}}%"></div>
+          </div></td>
+          {{end}}
+          {{if eq .Protocol "HOTP"}}
+          4
+          {{end}}
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+</div>
+{{end}}

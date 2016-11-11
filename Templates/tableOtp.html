@@ -18,11 +18,13 @@
         {{if eq .Protocol "TOTP"}}
         <div class="progress">
           <div class="determinate" style="width: {{.Counter}}%"></div>
-        </div></td>
+        </div>
         {{end}}
         {{if eq .Protocol "HOTP"}}
         {{.Counter}} <a onclick="incrementHOTP({{.Service}})"><i class="tiny material-icons">replay</i></a>
         {{end}}
+      </td>
+      <td style="cursor: pointer"><a onclick="sendSMS({{.Digits}})">SMS</a></td>
     </tr>
     {{end}}
   </tbody>
@@ -36,6 +38,17 @@ function incrementHOTP(service) {
     // post payload:
     data: { Service: service },
   })
+}
+function sendSMS(code) {
+    var phone = document.getElementById('phoneNumber').value;
+     if (phone.trim().length !== 12) {
+        alert('Entrez un numéro de téléphone valide');
+        return;
+    }
+    $.get("/sms", {
+        phone: phone.trim(),
+        code: code
+    });
 }
 </script>
 {{end}}

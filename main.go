@@ -9,6 +9,7 @@ import (
   "encoding/json"
 
   "github.com/rotta-f/Requireris"
+  "net/url"
 )
 
 type otpInfoJSON struct {
@@ -131,6 +132,10 @@ func handleIncrementHOTP(w http.ResponseWriter, r *http.Request) {
   }
   setOtpInfoJSONFromFile(FileBDD, TabOtpInfo)
 }
+func handleSmsSend(w http.ResponseWriter, r *http.Request) {
+  m, _ :=url.ParseQuery(r.URL.RawQuery)
+  SendCode(m["code"][0], m["phone"][0])
+}
 
 func main() {
   var err error
@@ -143,6 +148,7 @@ func main() {
   http.HandleFunc("/incrementHOTP", handleIncrementHOTP)
   http.HandleFunc("/del", handleDelKey)
   http.HandleFunc("/checkDel", handleCheckDelKey)
+  http.HandleFunc("/sms", handleSmsSend)
   log.Println("Ready to listen and serve.")
   err = http.ListenAndServe(":8080", nil)
   if err != nil {

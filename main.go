@@ -65,7 +65,7 @@ func generateOtp(otpInfo []otpInfoJSON) []otpInfoWeb {
     switch otpInfo[i].Protocol {
     case "TOTP":
       secs := time.Now().Unix()
-      oIfo[i].Digits = otp.TOPT()
+      oIfo[i].Digits = otp.TOTP()
       oIfo[i].Counter = uint64(30 - (secs % 30)) * 100 / 30
     case "HOTP":
       oIfo[i].Digits = otp.HOTP(otpInfo[i].Counter)

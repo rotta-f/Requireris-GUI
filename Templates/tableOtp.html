@@ -1,11 +1,12 @@
 {{define "tableOtp"}}
-<table class="highlight">
+<table>
   <thead>
     <tr>
         <th data-field="protocol">Protocol</th>
         <th data-field="service">Service Name</th>
         <th data-field="digits">Digits Value</th>
-        <th data-field="counter"></th>
+        <th data-field="counter">Informations</th>
+      <th data-field="sms">Envoyer</th>
     </tr>
   </thead>
   <tbody>
@@ -24,7 +25,7 @@
         {{.Counter}} <a onclick="incrementHOTP({{.Service}})"><i class="tiny material-icons">replay</i></a>
         {{end}}
       </td>
-      <td style="cursor: pointer"><a onclick="sendSMS({{.Digits}})">SMS</a></td>
+      <td style="cursor: pointer"><a onclick="sendSMS({{.Digits}})" class="waves-effect waves-light"><i class="material-icons right">send</i>SMS</a></td>
     </tr>
     {{end}}
   </tbody>

@@ -14,9 +14,16 @@
     {{template "header" "index"}}
       <div class="container">
         <div id="containerOtp"></div>
-      <label for="phoneNumber">Numéro de téléphone</label><input id="phoneNumber" type="text" placeholder="+33XXXXXXXXX">
+        <a href="/add" style="float: right; margin-top: 2rem" class="btn-floating btn-large waves-effect waves-light red"><i class="material-icons">add</i></a>
+        <div style="margin-top: 5rem">
+          <p>Vous pouvez également recevoir votre code par SMS</p>
+          <div class="input-field inline">
+            <input id="phoneNumber" type="text" placeholder="+33XXXXXXXXX">
+           <label for="phoneNumber">Numéro de téléphone</label>
+         </div>
+        </div>
       </div>
-     <a href="/add" class="btn-floating btn-large waves-effect waves-light red"><i class="material-icons">add</i></a>
+
 
      <script>
      function refreshContainerOtp() {

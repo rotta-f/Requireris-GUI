@@ -12,20 +12,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>
 
     {{template "header" "del"}}
+    <div style="max-width: 600px; margin: auto">
     <div class="row">
       <form class="col s12" action="/checkDel" method="POST">
         <div class="row">
           <div class="input-field col s12">
-            <input name="service" type="text" id="autocomplete-input" value="{{if .Err.Service}}{{.Err.Service}}}}{{end}}" class="autocomplete validate {{if .Err.Service}}invalid{{end}}">
+            <input required name="service" type="text" id="autocomplete-input" value="{{if .Err.Service}}{{.Err.Service}}}}{{end}}" class="autocomplete validate {{if .Err.Service}}invalid{{end}}">
             <label data-error="Unknown Service" for="autocomplete-input">Service to Delete</label>
           </div>
         </div>
-        <button class="btn waves-effect waves-light red" type="submit" name="action">Delete
+        <button style="float: right" class="btn waves-effect waves-light red" type="submit" name="action">Delete
           <i class="material-icons right">send</i>
         </button>
       </form>
     </div>
-
+    </div>
     <script>
     $(document).ready(function() {
       $('input.autocomplete').autocomplete({

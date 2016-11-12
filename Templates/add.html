@@ -16,26 +16,37 @@
     <div class="row">
       <form class="col s12" action="/addKey" method="POST">
         <div class="input-field col s12">
-          <select name="protocol" required>
+          <select name="protocol" id="protocol" required>
             <option value="" disabled selected>Choose your option</option>
             <option value="TOTP">TOTP</option>
             <option value="HOTP">HOTP</option>
           </select>
-          <label>Protocol</label>
+          <label for="protocol">Protocol</label>
         </div>
         <div class="row">
           <div class="input-field col s12">
-            <input name="service" id="service" type="text" {{if .Service}}value="{{.Service}}"{{end}} class="validate {{if .Service}}invalid{{end}}" required>
+            <input name="service" id="service" type="text" {{if .Service}}value="{{.Service}}"{{end}} class="validate {{if .Service}}invalid{{end}}" required placeholder="Friendly reminder">
             <label data-error="Already used" for="service">Service</label>
           </div>
         </div>
         <div class="row">
           <div class="input-field col s12">
-            <input name="key" id="key" type="text" {{if .Key}}value="{{.Key}}"{{end}} class="validate" required>
+            <input name="key" id="key" type="text" {{if .Key}}value="{{.Key}}"{{end}} class="validate" required placeholder="Secet provided for the service">
             <label for="key">Secret Key</label>
           </div>
         </div>
-        <button style="float: right" class="btn waves-effect waves-light" type="submit" name="action">Submit
+        <div class="input-field col s12">
+          <select name="digits" id="digits" required>
+            <option value="" disabled selected>Choose the number of digits</option>
+            <option value="6">6</option>
+            <option value="7" >7</option>
+            <option value="8" >8</option>
+            <option value="9" >9</option>
+            <option value="10" >10</option>
+          </select>
+          <label for="digits">Protocol</label>
+        </div>
+        <button style="float: right" class="btn waves-effect waves-light" type="submit" name="action">Add Service
           <i class="material-icons right">send</i>
         </button>
       </form>

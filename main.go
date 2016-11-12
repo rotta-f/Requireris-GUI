@@ -17,6 +17,7 @@ type otpInfoJSON struct {
   Service string
   Key string
   Counter uint64
+  Digits int
 }
 
 type otpInfoWeb struct {
@@ -62,7 +63,7 @@ func generateOtp(otpInfo []otpInfoJSON) []otpInfoWeb {
     oIfo[i].Service = otpInfo[i].Service
     oIfo[i].Counter = otpInfo[i].Counter
     oIfo[i].Digits = "Not Defined"
-    otp := Requireris.Init(otpInfo[i].Key)
+    otp := Requireris.Init(otpInfo[i].Key, otpInfo[i].Digits)
     switch otpInfo[i].Protocol {
     case "TOTP":
       secs := time.Now().Unix()

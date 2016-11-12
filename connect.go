@@ -14,7 +14,7 @@ import (
 )
 
 var PasswordUser []byte
-var PhoneUser string
+// var PhoneUser string
 
 const
 (
@@ -62,13 +62,13 @@ func getHash() ([]byte, bool) {
 }
 
 func initFirstConnection() ([]byte, string) {
-  fmt.Printf("New Password: ")
+  fmt.Print("New Password: ")
   passwd, err := terminal.ReadPassword(0)
   fmt.Println("")
   if err != nil {
     log.Fatal(err)
   }
-  fmt.Printf("Confirm Password: ")
+  fmt.Print("Confirm Password: ")
   passwdConfirmed, err := terminal.ReadPassword(0)
   fmt.Println("")
   if err != nil {
@@ -96,7 +96,7 @@ func initFirstConnection() ([]byte, string) {
 }
 
 func newConnection(oldHash []byte) ([]byte, string) {
-  fmt.Printf("Password: ")
+  fmt.Print("Password: ")
   passwd, err := terminal.ReadPassword(0)
   fmt.Println("")
   if err != nil {
@@ -123,9 +123,9 @@ func newConnection(oldHash []byte) ([]byte, string) {
 func connect() ([]byte, bool) {
   oldHash, ok := getHash()
   if ok != true {
-    PasswordUser, PhoneUser = initFirstConnection()
+    PasswordUser, _ = initFirstConnection()
   } else {
-    PasswordUser, PhoneUser = newConnection(oldHash)
+    PasswordUser, _ = newConnection(oldHash)
   }
   return []byte(""), true
 }

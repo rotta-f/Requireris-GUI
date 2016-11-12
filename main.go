@@ -141,6 +141,7 @@ func handleSmsSend(w http.ResponseWriter, r *http.Request) {
 func main() {
   var err error
 
+  connect()
   TabOtpInfo = getOtpInfoJSONFromFile(FileBDD)
   http.HandleFunc("/", handleIndex)
   http.HandleFunc("/add", handleAdd)

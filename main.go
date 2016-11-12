@@ -36,9 +36,9 @@ var TabOtpInfo []otpInfoJSON
 const FileBDD string = "info.json"
 
 func getAESKey() []byte {
-  aesKey := make([]byte, 16)
+  aesKey := make([]byte, 32)
   passwdLen := len(PasswordUser)
-  for i := 0 ; i < 16 ; i++ {
+  for i := 0 ; i < 32 ; i++ {
     if i < passwdLen {
       aesKey[i] = PasswordUser[i]
     }

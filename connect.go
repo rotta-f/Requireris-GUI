@@ -40,7 +40,7 @@ func confirmByPhone(phoneNumber string) bool {
     return true
   }
   code := generateNewCode()
-  SendCode(code, phoneNumber)
+  SendAuthCode(code, phoneNumber)
 
   var codeOnPhone string
   fmt.Print("\nConfirm with the code received by phone\nCode: ")

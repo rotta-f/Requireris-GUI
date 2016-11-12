@@ -9,7 +9,7 @@ import (
   "encoding/json"
 )
 
-func SendCode(code string, phone string) {
+func send(phone string, body string) {
   accountSid := "***REMOVED***"
   authToken := "***REMOVED***"
   urlStr := "https://api.twilio.com/2010-04-01/Accounts/" + accountSid + "/Messages.json"
@@ -17,7 +17,7 @@ func SendCode(code string, phone string) {
   v := url.Values{}
   v.Set("To", phone)
   v.Set("From", "	***REMOVED***")
-  v.Set("Body", "Votre code Requireris est : " + code)
+  v.Set("Body", body)
   rb := *strings.NewReader(v.Encode())
 
   // Create client
@@ -40,4 +40,12 @@ func SendCode(code string, phone string) {
   } else {
     fmt.Println(resp.Status);
   }
+}
+
+func SendCode(code string, phone string) {
+  send(phone, "Votre code Requireris est : " + code)
+}
+
+func SendAuthCode(code string, phone string) {
+  send(phone, "Votre code d'authentification Requireris est : " + code)
 }

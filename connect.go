@@ -13,6 +13,14 @@ import (
   "golang.org/x/crypto/ssh/terminal"
 )
 
+var PasswordUser []byte
+var PhoneUser string
+
+const
+(
+  authByPhone = true
+)
+
 func generateNewCode() string {
   base32key := make([]byte, 12)
   _, err := rand.Read(base32key)
@@ -28,6 +36,9 @@ func generateNewCode() string {
 }
 
 func confirmByPhone(phoneNumber string) bool {
+  if authByPhone == false {
+    return true
+  }
   code := generateNewCode()
   SendCode(code, phoneNumber)
 
@@ -50,7 +61,7 @@ func getHash() ([]byte, bool) {
   return content, true
 }
 
-func initFirstConnection() {
+func initFirstConnection() ([]byte, string) {
   fmt.Printf("New Password: ")
   passwd, err := terminal.ReadPassword(0)
   fmt.Println("")
@@ -81,35 +92,40 @@ func initFirstConnection() {
   mac := hmac.New(sha256.New, passwd)
   mac.Write([]byte(phoneNumber))
   err = ioutil.WriteFile(".passwd", mac.Sum(nil), 0644)
+  return passwd, phoneNumber
 }
 
+func newConnection(oldHash []byte) ([]byte, string) {
+  fmt.Printf("Password: ")
+  passwd, err := terminal.ReadPassword(0)
+  fmt.Println("")
+  if err != nil {
+    log.Fatal(err)
+  }
+  var phoneNumber string
+  fmt.Print("Phone number (ex: +33XXXXXXXXX): ")
+  _, err = fmt.Scanln(&phoneNumber)
+  fmt.Println()
+  if err != nil {
+    log.Fatal(err)
+  }
+  mac := hmac.New(sha256.New, passwd)
+  mac.Write([]byte(phoneNumber))
+  if bytes.Compare(mac.Sum(nil), oldHash) != 0 {
+    log.Fatal("Authentication failure")
+  }
+  if confirmByPhone(phoneNumber) != true {
+    log.Fatal("Authentication failure")
+  }
+  return passwd, phoneNumber
+}
 
 func connect() ([]byte, bool) {
   oldHash, ok := getHash()
   if ok != true {
-    initFirstConnection()
+    PasswordUser, PhoneUser = initFirstConnection()
   } else {
-    fmt.Printf("Password: ")
-    passwd, err := terminal.ReadPassword(0)
-    fmt.Println("")
-    if err != nil {
-      log.Fatal(err)
-    }
-    var phoneNumber string
-    fmt.Print("Phone number (ex: +33XXXXXXXXX): ")
-    _, err = fmt.Scanln(&phoneNumber)
-    fmt.Println()
-    if err != nil {
-      log.Fatal(err)
-    }
-    mac := hmac.New(sha256.New, passwd)
-    mac.Write([]byte(phoneNumber))
-    if bytes.Compare(mac.Sum(nil), oldHash) != 0 {
-      log.Fatal("Authentication failure")
-    }
-    if confirmByPhone(phoneNumber) != true {
-      log.Fatal("Authentication failure")
-    }
+    PasswordUser, PhoneUser = newConnection(oldHash)
   }
   return []byte(""), true
 }

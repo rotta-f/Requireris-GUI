@@ -8,6 +8,11 @@ import (
   "io/ioutil"
   "encoding/json"
 
+  "crypto/aes"
+  "crypto/cipher"
+  "crypto/rand"
+  "io"
+
   "github.com/rotta-f/Requireris"
   "net/url"
 )
@@ -30,16 +35,44 @@ type otpInfoWeb struct {
 var TabOtpInfo []otpInfoJSON
 const FileBDD string = "info.json"
 
+func getAESKey() []byte {
+  aesKey := make([]byte, 16)
+  passwdLen := len(PasswordUser)
+  for i := 0 ; i < 16 ; i++ {
+    if i < passwdLen {
+      aesKey[i] = PasswordUser[i]
+    }
+  }
+  return aesKey
+}
+
 func getOtpInfoJSONFromFile(fileName string) []otpInfoJSON {
   content, err := ioutil.ReadFile(fileName)
   if err != nil {
     log.Print(err)
     content = []byte("[]")
+  } else {
+
+    block, err := aes.NewCipher(getAESKey())
+  	if err != nil {
+  		panic(err)
+  	}
+
+  	if len(content) < aes.BlockSize {
+  		panic("ciphertext too short")
+  	}
+  	iv := content[:aes.BlockSize]
+  	content = content[aes.BlockSize:]
+
+  	stream := cipher.NewCFBDecrypter(block, iv)
+
+  	stream.XORKeyStream(content, content)
   }
+
   var otpInfo []otpInfoJSON
   err = json.Unmarshal(content, &otpInfo)
   if err != nil {
-    log.Print(err)
+    panic(err)
   }
   return otpInfo
 }
@@ -50,7 +83,22 @@ func setOtpInfoJSONFromFile(fileName string, otpInfo []otpInfoJSON) {
     log.Print(err)
     return
   }
-  err = ioutil.WriteFile(fileName, content, 0644)
+
+	block, err := aes.NewCipher(getAESKey())
+	if err != nil {
+		panic(err)
+	}
+
+	ciphertext := make([]byte, aes.BlockSize+len(content))
+	iv := ciphertext[:aes.BlockSize]
+	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+		panic(err)
+	}
+
+	stream := cipher.NewCFBEncrypter(block, iv)
+	stream.XORKeyStream(ciphertext[aes.BlockSize:], content)
+
+  err = ioutil.WriteFile(fileName, ciphertext, 0644)
   if err != nil {
     log.Print(err)
   }

@@ -7,7 +7,7 @@ import (
 )
 
 type argDel struct {
-  Err otpInfoJSON
+  Err           otpInfoJSON
   ListOfService []string
 }
 

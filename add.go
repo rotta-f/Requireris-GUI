@@ -17,7 +17,7 @@ func handleAdd(w http.ResponseWriter, r *http.Request) {
 func handleAddKey(w http.ResponseWriter, r *http.Request) {
   err := r.ParseForm()
   if err != nil {
-      // Handle error here via logging and then return
+    // Handle error here via logging and then return
   }
   protocolsAvailable := map[string]bool{"HOTP" : true, "TOTP" : true}
   digitsAvailable := map[int]bool{6: true, 7: true, 8: true, 9: true, 10: true}

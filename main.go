@@ -19,17 +19,17 @@ import (
 
 type otpInfoJSON struct {
   Protocol string
-  Service string
-  Key string
-  Counter uint64
-  Digits int
+  Service  string
+  Key      string
+  Counter  uint64
+  Digits   int
 }
 
 type otpInfoWeb struct {
   Protocol string
-  Service string
-  Digits string
-  Counter uint64
+  Service  string
+  Digits   string
+  Counter  uint64
 }
 
 type IndexData struct {
@@ -37,12 +37,13 @@ type IndexData struct {
 }
 
 var TabOtpInfo []otpInfoJSON
+
 const FileBDD string = "info.json"
 
 func getAESKey() []byte {
   aesKey := make([]byte, 32)
   passwdLen := len(PasswordUser)
-  for i := 0 ; i < 32 ; i++ {
+  for i := 0; i < 32; i++ {
     if i < passwdLen {
       aesKey[i] = PasswordUser[i]
     }
@@ -58,19 +59,19 @@ func getOtpInfoJSONFromFile(fileName string) []otpInfoJSON {
   } else {
 
     block, err := aes.NewCipher(getAESKey())
-  	if err != nil {
-  		panic(err)
-  	}
+    if err != nil {
+      panic(err)
+    }
 
-  	if len(content) < aes.BlockSize {
-  		panic("ciphertext too short")
-  	}
-  	iv := content[:aes.BlockSize]
-  	content = content[aes.BlockSize:]
+    if len(content) < aes.BlockSize {
+      panic("ciphertext too short")
+    }
+    iv := content[:aes.BlockSize]
+    content = content[aes.BlockSize:]
 
-  	stream := cipher.NewCFBDecrypter(block, iv)
+    stream := cipher.NewCFBDecrypter(block, iv)
 
-  	stream.XORKeyStream(content, content)
+    stream.XORKeyStream(content, content)
   }
 
   var otpInfo []otpInfoJSON
@@ -88,19 +89,19 @@ func setOtpInfoJSONFromFile(fileName string, otpInfo []otpInfoJSON) {
     return
   }
 
-	block, err := aes.NewCipher(getAESKey())
-	if err != nil {
-		panic(err)
-	}
+  block, err := aes.NewCipher(getAESKey())
+  if err != nil {
+    panic(err)
+  }
 
-	ciphertext := make([]byte, aes.BlockSize+len(content))
-	iv := ciphertext[:aes.BlockSize]
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		panic(err)
-	}
+  ciphertext := make([]byte, aes.BlockSize + len(content))
+  iv := ciphertext[:aes.BlockSize]
+  if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+    panic(err)
+  }
 
-	stream := cipher.NewCFBEncrypter(block, iv)
-	stream.XORKeyStream(ciphertext[aes.BlockSize:], content)
+  stream := cipher.NewCFBEncrypter(block, iv)
+  stream.XORKeyStream(ciphertext[aes.BlockSize:], content)
 
   err = ioutil.WriteFile(fileName, ciphertext, 0644)
   if err != nil {
@@ -110,7 +111,7 @@ func setOtpInfoJSONFromFile(fileName string, otpInfo []otpInfoJSON) {
 
 func generateOtp(otpInfo []otpInfoJSON) []otpInfoWeb {
   oIfo := make([]otpInfoWeb, len(otpInfo))
-  for i := 0; i < len(otpInfo) ; i++ {
+  for i := 0; i < len(otpInfo); i++ {
     oIfo[i].Protocol = otpInfo[i].Protocol
     oIfo[i].Service = otpInfo[i].Service
     oIfo[i].Counter = otpInfo[i].Counter
@@ -175,7 +176,7 @@ func handleGetOtp(w http.ResponseWriter, r *http.Request) {
 func handleIncrementHOTP(w http.ResponseWriter, r *http.Request) {
   err := r.ParseForm()
   if err != nil {
-      // Handle error here via logging and then return
+    // Handle error here via logging and then return
   }
   service := r.PostFormValue("Service")
   for i := 0; i < len(TabOtpInfo); i++ {
@@ -186,7 +187,7 @@ func handleIncrementHOTP(w http.ResponseWriter, r *http.Request) {
   setOtpInfoJSONFromFile(FileBDD, TabOtpInfo)
 }
 func handleSmsSend(w http.ResponseWriter, r *http.Request) {
-  m, _ :=url.ParseQuery(r.URL.RawQuery)
+  m, _ := url.ParseQuery(r.URL.RawQuery)
   SendCode(m["code"][0], m["phone"][0])
 }
 

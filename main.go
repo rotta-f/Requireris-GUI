@@ -32,6 +32,10 @@ type otpInfoWeb struct {
   Counter uint64
 }
 
+type IndexData struct {
+  UserPhone string
+}
+
 var TabOtpInfo []otpInfoJSON
 const FileBDD string = "info.json"
 
@@ -149,7 +153,7 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
     http.Error(w, err.Error(), http.StatusInternalServerError)
     return
   }
-  err = t.ExecuteTemplate(w, "content", nil)
+  err = t.ExecuteTemplate(w, "content", &IndexData{UserPhone:UserPhone})
   if err != nil {
     http.Error(w, err.Error(), http.StatusInternalServerError)
   }

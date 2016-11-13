@@ -14,7 +14,7 @@ import (
 )
 
 var PasswordUser []byte
-// var PhoneUser string
+var UserPhone string
 
 const
 (
@@ -123,9 +123,9 @@ func newConnection(oldHash []byte) ([]byte, string) {
 func connect() ([]byte, bool) {
   oldHash, ok := getHash()
   if ok != true {
-    PasswordUser, _ = initFirstConnection()
+    PasswordUser, UserPhone = initFirstConnection()
   } else {
-    PasswordUser, _ = newConnection(oldHash)
+    PasswordUser, UserPhone = newConnection(oldHash)
   }
   return []byte(""), true
 }

@@ -11,7 +11,7 @@ import (
 
   "github.com/rotta-f/Requireris"
   "golang.org/x/crypto/ssh/terminal"
-  "syscall"
+  "os"
 )
 
 var PasswordUser []byte
@@ -64,13 +64,13 @@ func getHash() ([]byte, bool) {
 
 func initFirstConnection() ([]byte, string) {
   fmt.Print("New Password: ")
-  passwd, err := terminal.ReadPassword(syscall.Stdin)
+  passwd, err := terminal.ReadPassword(int(os.Stdin.Fd()))
   fmt.Println("")
   if err != nil {
     log.Fatal(err)
   }
   fmt.Print("Confirm Password: ")
-  passwdConfirmed, err := terminal.ReadPassword(syscall.Stdin)
+  passwdConfirmed, err := terminal.ReadPassword(int(os.Stdin.Fd()))
   fmt.Println("")
   if err != nil {
     log.Fatal(err)
@@ -98,7 +98,7 @@ func initFirstConnection() ([]byte, string) {
 
 func newConnection(oldHash []byte) ([]byte, string) {
   fmt.Print("Password: ")
-  passwd, err := terminal.ReadPassword(syscall.Stdin)
+  passwd, err := terminal.ReadPassword(int(os.Stdin.Fd()))
   fmt.Println("")
   if err != nil {
     log.Fatal(err)

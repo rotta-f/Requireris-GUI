@@ -10,13 +10,13 @@ import (
 )
 
 func send(phone string, body string) {
-  accountSid := "***REMOVED***"
-  authToken := "***REMOVED***"
+  accountSid := ""
+  authToken := ""
   urlStr := "https://api.twilio.com/2010-04-01/Accounts/" + accountSid + "/Messages.json"
 
   v := url.Values{}
   v.Set("To", phone)
-  v.Set("From", "	***REMOVED***")
+  v.Set("From", "")
   v.Set("Body", body)
   rb := *strings.NewReader(v.Encode())
 
